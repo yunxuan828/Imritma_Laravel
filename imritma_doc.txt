@@ -1,0 +1,150 @@
+# IT Team Portal - Microsoft Authentication Documentation
+
+## Overview
+This document provides comprehensive information about the Microsoft authentication implementation for the IT Team Portal. It includes setup instructions, code explanations, and troubleshooting steps.
+
+## Table of Contents
+1. [System Requirements](#system-requirements)
+2. [Authentication Flow](#authentication-flow)
+3. [Implementation Details](#implementation-details)
+4. [Configuration Guide](#configuration-guide)
+5. [Troubleshooting](#troubleshooting)
+
+## System Requirements
+- PHP 8.2.12
+- Laravel 12.3.0
+- Microsoft Azure account with admin access
+- Composer
+
+## Authentication Flow
+1. User visits the login page
+2. User clicks "Sign in with Microsoft"
+3. User is redirected to Microsoft for authentication
+4. Upon successful authentication, Microsoft redirects back to our callback URL
+5. The system validates the user's email domain against approved list
+6. If domain is approved, user is logged in and redirected to IT Team Portal
+7. If domain is not approved, access is denied
+
+## Implementation Details
+
+### Key Components
+- **MicrosoftLoginController**: Handles OAuth flow with Microsoft
+- **Domain Restriction**: Ensures only company emails can access the portal
+- **Protected Routes**: Secures access to IT Team Portal routes
+
+### Email Domain Restriction
+Access is restricted to the following domains:
+- ritmapres.com
+- profvets.com
+- trendatasc.com
+
+### File Structure
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Auth/
+│   │   │   └── MicrosoftLoginController.php
+│   │   ├── Controller.php
+│   │   ├── HomeController.php
+│   │   └── FeedbackController.php
+│   └── Middleware/
+│       └── CompanyDomainRestriction.php
+├── Models/
+│   └── User.php
+├── providers/
+│   ├── EventServiceProvider.php
+│   └── RouteServiceProvider.php
+routes/
+└── web.php
+config/
+└── services.php
+```
+
+## Configuration Guide
+
+### Azure App Registration
+1. Create new application in Azure Active Directory
+2. Set app name to "imritma"
+3. Configure redirect URI: `http://localhost/imritma/public/auth/microsoft/callback`
+4. Generate a client secret in "Certificates & secrets" section
+5. Set API permissions:
+   - Microsoft Graph: User.Read
+   - Microsoft Graph: email, openid, profile, offline_access
+6. Enable ID tokens in Authentication settings
+
+### Environment Variables
+Add these to your `.env` file:
+```
+MICROSOFT_CLIENT_ID=your_client_id
+MICROSOFT_CLIENT_SECRET=your_client_secret
+MICROSOFT_REDIRECT_URI=http://localhost/imritma/public/auth/microsoft/callback
+MICROSOFT_TENANT_ID=your_tenant_id
+```
+
+### Database Migration
+Run this to add Microsoft ID column to users table:
+```
+php artisan migrate
+```
+
+## Troubleshooting
+
+### Common Errors
+
+#### "Driver not supported"
+**Solution**: Install the correct Socialite provider package:
+```
+composer require socialiteproviders/microsoft-graph
+```
+
+#### "Invalid client secret"
+**Solution**: Generate a new client secret in Azure portal and update your `.env` file.
+
+#### "Target class [company.domain] does not exist"
+**Solution**: Ensure middleware is registered correctly in Kernel.php and properly used in routes:
+```php
+// In routes/web.php
+Route::prefix('it-team')->middleware(['web', 'auth'])->group(function () {
+    // Routes here
+});
+```
+
+#### "Call to undefined method middleware()"
+**Solution**: Ensure Controller base class properly extends Laravel's base controller. Check:
+- Controller.php properly uses Illuminate\Routing\Controller
+- Controllers import the base Controller class correctly
+
+### Tips
+- After config changes, run: `php artisan config:clear` 
+- After route changes, run: `php artisan route:clear`
+- For complete cache clear, run: `php artisan optimize:clear`
+
+## Code Explanations
+
+### Email Domain Validation (in HomeController)
+```php
+// Check if email domain is allowed
+$email = $user->email;
+$domain = substr($email, strpos($email, '@') + 1);
+if (!in_array($domain, $this->allowedDomains)) {
+    Auth::logout();
+    return redirect()->route('login')
+        ->with('error', 'Access restricted to employees only...');
+}
+```
+
+### Microsoft Authentication (in MicrosoftLoginController)
+```php
+public function redirectToProvider()
+{
+    return Socialite::driver('microsoft-graph')
+        ->scopes(['user.read', 'openid', 'profile', 'email'])
+        ->redirect();
+}
+```
+
+---
+
+Document prepared by: IT Development Team  
+Last updated: March 2025 
