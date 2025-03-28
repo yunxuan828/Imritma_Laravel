@@ -45,7 +45,7 @@ return [
     'graph' => [
         'client_id' => env('MICROSOFT_CLIENT_ID', '1c449494-5e15-48f2-a5a1-f377310741bd'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET', '483b80da-759f-4017-a88f-ed742a11f5cc'),
-        'redirect' => env('MICROSOFT_REDIRECT_URI', 'http://localhost/imritma/public/auth/microsoft/callback'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI', 'https://imritma.com/auth/microsoft/callback'),
         'tenant' => env('MICROSOFT_TENANT_ID', 'fa9267e5-090d-4ab2-b8b7-d7f939f1da33'),
         'scopes' => ['user.read', 'openid', 'profile', 'email', 'offline_access'],
     ],
@@ -53,7 +53,7 @@ return [
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID', '1c449494-5e15-48f2-a5a1-f377310741bd'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET', '483b80da-759f-4017-a88f-ed742a11f5cc'),
-        'redirect' => env('MICROSOFT_REDIRECT_URI', 'http://localhost/imritma/public/auth/microsoft/callback'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI', 'https://imritma.com/auth/microsoft/callback'),
         'tenant' => env('MICROSOFT_TENANT_ID', 'common'),
     ],
 

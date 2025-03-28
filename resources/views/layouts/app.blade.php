@@ -124,6 +124,32 @@
             width: 100%;
         }
         
+        /* Logout button styling to match nav links */
+        .nav-links button {
+            position: relative;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links button:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links button:hover {
+            color: var(--accent-color);
+        }
+        
+        .nav-links button:hover:after {
+            width: 100%;
+        }
+        
         .btn {
             position: relative;
             overflow: hidden;
@@ -763,7 +789,7 @@
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf
-                            <button type="submit" style="background: none; border: none; cursor: pointer; font-weight: 500; color: var(--primary-color); position: relative;">Logout</button>
+                            <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;">Logout</button>
                         </form>
                     </li>
                     @endauth
