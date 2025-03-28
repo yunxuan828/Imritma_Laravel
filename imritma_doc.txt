@@ -146,5 +146,72 @@ public function redirectToProvider()
 
 ---
 
+## cPanel Deployment Guide
+
+### Deployment Steps
+
+1. **Prepare Laravel Project**
+   - Create a zip archive of your Laravel project excluding vendor/ and node_modules/
+   - Upload the zip file to cPanel
+
+2. **Server Setup**
+   - Create a 'laravel' directory in the home directory (/home/username/)
+   - Extract the project files to this directory
+   - Copy all files from laravel/public/ to public_html/
+
+3. **Update Index.php**
+   - Edit public_html/index.php to update paths:
+   ```php
+   // Change paths to point to the laravel directory
+   require __DIR__.'/../laravel/vendor/autoload.php';
+   $app = require_once __DIR__.'/../laravel/bootstrap/app.php';
+   ```
+
+4. **Database Configuration**
+   - Create SQLite database file:
+   ```
+   mkdir -p /home/username/laravel/database
+   touch /home/username/laravel/database/database.sqlite
+   chmod 644 /home/username/laravel/database/database.sqlite
+   ```
+   - Update .env file with correct database path:
+   ```
+   DB_CONNECTION=sqlite
+   DB_DATABASE=/home/username/laravel/database/database.sqlite
+   ```
+
+5. **Set File Permissions**
+   - Set proper permissions:
+   ```
+   chmod -R 755 /home/username/laravel/storage
+   chmod -R 755 /home/username/laravel/bootstrap/cache
+   chmod 644 /home/username/public_html/*.php
+   ```
+   - Important: cPanel security prevents execution of group-writable PHP files
+   - PHP files must have 644 permissions (not 664, 775, or 777)
+
+6. **Run Laravel Setup Commands**
+   - Access SSH via terminal or cPanel's Terminal feature
+   - Navigate to Laravel directory:
+   ```
+   cd /home/username/laravel
+   ```
+   - Run optimization commands with correct PHP path:
+   ```
+   /opt/cpanel/ea-php82/root/usr/bin/php artisan config:clear
+   /opt/cpanel/ea-php82/root/usr/bin/php artisan cache:clear
+   /opt/cpanel/ea-php82/root/usr/bin/php artisan migrate
+   /opt/cpanel/ea-php82/root/usr/bin/php artisan optimize
+   ```
+
+7. **Troubleshooting**
+   - Check server error logs at /usr/local/apache/logs/error_log
+   - SoftException error "File is writeable by group" indicates incorrect permissions
+   - Use diagnostic PHP files to isolate issues
+   - Ensure .htaccess file contains proper rewrite rules
+   - Make sure PHP version is compatible (8.2+ for Laravel 10+)
+
+### Environment Settings for Production
+
 Document prepared by: IT Development Team  
 Last updated: March 2025 

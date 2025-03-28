@@ -789,7 +789,7 @@
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf
-                            <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;">Logout</button>
+                            <a href="javascript:void(0)" onclick="this.closest('form').submit();">Logout</a>
                         </form>
                     </li>
                     @endauth
